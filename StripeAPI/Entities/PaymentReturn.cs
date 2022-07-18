@@ -1,8 +1,7 @@
 ﻿namespace StripeAPI.Entities
 {
-    public class PaymentReturn
+    public class PaymentReturn: IPaymentIntent
     {
-        public string Id { get; set; }
         public long Amount { get; set; } 
         public long AmountReceived { get; set; }
         public string Status { get; set; }

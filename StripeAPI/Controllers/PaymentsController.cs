@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Cors;
+using Microsoft.AspNetCore.Mvc;
 using Stripe;
 using StripeAPI.Entities;
 using System.Collections.Generic;
@@ -11,14 +12,19 @@ namespace StripeAPI.Controllers
     [ApiController]
     public class PaymentsController : ControllerBase
     {
-        [HttpPost]
-        public string Get([FromBody] CardInfo cardInfo)
+        public PaymentsController()
         {
             StripeConfiguration.ApiKey = "sk_test_51LLgOpHNoFBenqbdMnR7j1MfKUPJ9e1mnU6TQlSPHsw78Jj78zNhblpkBR1cmlkBnUN3egLwwcvVxBquTXA4AKOI00HTBT5Tmp";
-            return PlacePayment(cardInfo).Id;
         }
 
+        [EnableCors("CorsPolicy")]
+        [HttpPost]
+        public IPaymentIntent Pay([FromBody] CardInfo cardInfo)
+        {
+            return new() { Id = PlacePayment(cardInfo).Id };
+        }
 
+        [EnableCors("CorsPolicy")]
         [HttpGet("{id}")]
         public PaymentReturn GetPaymentIntent(string id)
         {
@@ -41,7 +47,7 @@ namespace StripeAPI.Controllers
                     Number = card.Number,
                     ExpMonth = card.ExpMonth,
                     ExpYear = card.ExpYear,
-                    Cvc = card.Cvc,
+                    Cvc = card.Cvv,
                 },
             };
             var service = new PaymentMethodService();
@@ -52,12 +58,8 @@ namespace StripeAPI.Controllers
         {
             var options = new PaymentIntentCreateOptions
             {
-                Amount = 200,
+                Amount = 2000,
                 Currency = "usd",
-                PaymentMethodTypes = new List<string>
-                  {
-                    "card",
-                  },
                 PaymentMethod= CreatePaymentMethod(cardInfo).Id,
                 ReceiptEmail="dolceymendozajr@gmail.com",
                 Confirm=true
